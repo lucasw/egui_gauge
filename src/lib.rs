@@ -13,6 +13,7 @@ pub struct Gauge {
     size: f32,
     color: Color32,
     text: String,
+    value_text: String,
 }
 
 impl Gauge {
@@ -32,7 +33,14 @@ impl Gauge {
             size,
             color,
             text: Default::default(),
+            value_text: Default::default(),
         }
+    }
+
+    /// Text to be displayed instead of the value converted to a string
+    pub fn value_text(mut self, text: impl Into<String>) -> Self {
+        self.value_text = text.into();
+        self
     }
 
     /// Text to be displayed under the value in the center of the gauge
@@ -171,10 +179,17 @@ impl Gauge {
     }
 
     fn write_center_value(&mut self, ui: &mut Ui, rect: Rect, text_color: Color32) {
+        let value_text = {
+            if !self.value_text.is_empty() {
+                self.value_text.clone()
+            } else {
+                self.value.to_string()
+            }
+        };
         ui.painter().text(
             self.center(rect),
             Align2::CENTER_CENTER,
-            self.value.to_string(),
+            value_text,
             FontId {
                 size: self.inner_width() / 5.0,
                 family: FontFamily::Monospace,
